@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DummyMauiApp.Services;
+using Microsoft.Extensions.Logging;
 
 namespace DummyMauiApp;
 
@@ -16,8 +17,10 @@ public static class MauiProgram
 
 		builder.Services.AddMauiBlazorWebView();
 
+		builder.Services.AddSingleton<DummySevice>();
+
 #if DEBUG
-		builder.Services.AddBlazorWebViewDeveloperTools();
+        builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
 #endif
 
