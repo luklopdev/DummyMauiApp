@@ -1,11 +1,17 @@
 ﻿@page "/"
 @inject DummySevice dummyService
+@inject IDialogService DialogService
+@using DummyMauiApp.Components.Controls
 @using DummyMauiApp.Models
 @using DummyMauiApp.Services
+@using System.Diagnostics
 
 
-@{
-    if(products == null)
+<div>
+    <button class="btn btn-warning" @onclick="AddProduct">Add New Product</button>
+    <p>Title: @DialogData.title</p>
+
+    @if(products is null)
     {
         <p><em>Loading...</em></p>
     }
@@ -18,9 +24,9 @@
                     <h3>@product.title</h3>
                     <h5 class="card-title">@product.brand</h5>
                     @{
-                        foreach(var image in product.images)
+                        foreach (var image in product.images)
                         {
-                            <img src="@image" alt="@product.title" class="img-fluid"  width="150"/>
+                            <img src="@image" alt="@product.title" class="img-fluid" width="150" />
                         }
                     }
                 </div>
@@ -30,13 +36,42 @@
             </div>
         }
     }
-}
+</div>
 
 @code{
-    List<Product> products;
+    List<Product> products = default!;
+    private Product DialogData { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
         products = await dummyService.GetProductsAsync();
+    }
+
+    private async Task AddProduct()
+    {
+        try
+        {
+            var data = new Product();
+
+            var dialog = await DialogService.ShowDialogAsync<SimpleCustomizedDialog>(data, new DialogParameters()
+            {
+                Title = "Add New Product",
+                PreventDismissOnOverlayClick = true,
+                PreventScroll = true
+            });
+
+            var result = await dialog.Result;
+            if (!result.Cancelled && result.Data is not null)
+            {
+                DialogData = (Product)result.Data;
+                dummyService.AddProduct(data);
+                products = await dummyService.GetProductsAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+        }
+    
     }
 }

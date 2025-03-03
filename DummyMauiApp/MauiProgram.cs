@@ -1,5 +1,6 @@
 ﻿using DummyMauiApp.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace DummyMauiApp;
 
@@ -16,6 +17,7 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddMauiBlazorWebView();
+		builder.Services.AddFluentUIComponents();
 
 		builder.Services.AddSingleton<DummySevice>();
 

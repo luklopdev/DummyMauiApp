@@ -34,5 +34,11 @@ namespace DummyMauiApp.Services
 
             return _products;
         }
+
+        public List<Product> AddProduct(Product product)
+        {
+            _products.Add(product);
+            return _products;
+        }
     }
 }
