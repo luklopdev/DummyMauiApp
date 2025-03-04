@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject DummySevice dummyService
 @inject IDialogService DialogService
+@inject NavigationManager NavManager
 @using DummyMauiApp.Components.Controls
 @using DummyMauiApp.Models
 @using DummyMauiApp.Services
@@ -8,8 +9,11 @@
 
 
 <div>
-    <button class="btn btn-warning" @onclick="AddProduct">Add New Product</button>
-    <p>Title: @DialogData.title</p>
+    <div>
+        <button class="btn btn-warning" @onclick="AddProduct">Add New Product</button>
+        <p>Title: @DialogData.title</p>
+    </div>
+
 
     @if(products is null)
     {
@@ -19,7 +23,7 @@
     {
         foreach(var product in products)
         {
-            <div class="card" style="margin: 20px">
+            <div @onclick="() => GoToDetails(product)" class="card" style="margin-bottom: 20px;margin-top:20px;">
                 <div class="card-header">
                     <h3>@product.title</h3>
                     <h5 class="card-title">@product.brand</h5>
@@ -72,6 +76,10 @@
         {
             Debug.WriteLine(ex.Message);
         }
-    
+    }
+
+    private void GoToDetails(Product product)
+    {
+        NavManager.NavigateTo($"/details/{product.id.ToString()}");
     }
 }

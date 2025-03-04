@@ -40,5 +40,11 @@ namespace DummyMauiApp.Services
             _products.Add(product);
             return _products;
         }
+
+        public Product GetProduct(int id)
+        {
+            return _products.FirstOrDefault(p => p.id == id) ?? 
+                throw new Exception("Product not found");
+        }
     }
 }
