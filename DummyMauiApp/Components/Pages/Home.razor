@@ -2,6 +2,7 @@
 @inject DummySevice dummyService
 @inject IDialogService DialogService
 @inject NavigationManager NavManager
+@inject IGeolocation geolocation
 @using DummyMauiApp.Components.Controls
 @using DummyMauiApp.Models
 @using DummyMauiApp.Services
@@ -11,6 +12,9 @@
 <div>
     <div>
         <button class="btn btn-warning" @onclick="AddProduct">Add New Product</button>
+        <button class="btn btn-warning" @onclick="CheckYourLocation">Check your location</button>
+
+
         <p>Title: @DialogData.title</p>
     </div>
 
@@ -81,5 +85,53 @@
     private void GoToDetails(Product product)
     {
         NavManager.NavigateTo($"/details/{product.id.ToString()}");
+    }
+
+    [Inject]
+    private IMap map { get; set; }
+
+    private async Task CheckYourLocation()
+    {
+        try
+        {
+            var location = await geolocation.GetLastKnownLocationAsync();
+            if (location is null)
+            {
+                location = await geolocation.GetLocationAsync(new GeolocationRequest
+                    {
+                        DesiredAccuracy = GeolocationAccuracy.Best,
+                        Timeout = TimeSpan.FromSeconds(30)
+                    });
+            }
+
+            if(map == null)
+            {
+                throw new NullReferenceException("Map service is not available")
+                {
+                    Data =
+                    {
+                        { "Location", location }
+                    }
+                };
+            }
+
+            await map.OpenAsync(location!.Latitude, location.Longitude, new MapLaunchOptions()
+            {
+                Name = "Your location",
+                NavigationMode = NavigationMode.None
+            });
+        }
+        catch (NullReferenceException ex)
+        {
+            var location = ex.Data["Location"] as Location;
+
+            await ((Application)app).Windows[0].Page!.DisplayAlert("Your location",
+                $"Your location is {location!.Latitude} {location.Longitude}", "OK");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Unable to query location: {ex.Message}");
+            await ((Application)app).Windows[0].Page!.DisplayAlert("Error", ex.Message, "OK");
+        }
     }
 }
